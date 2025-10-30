@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+/.kaggle/
+kaggle.json
+
 # C extensions
 *.so
 
