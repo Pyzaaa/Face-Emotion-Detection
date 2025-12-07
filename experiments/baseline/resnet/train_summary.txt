@@ -1,0 +1,5 @@
+ResNet baseline
+epochs=10
+optimizer=Adam
+lr=1e-4
+best_val_acc=0.6853

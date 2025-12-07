@@ -1,0 +1,9 @@
+Class counts for train set
+class_0=2339
+class_1=1996
+class_2=2242
+class_3=2021
+class_4=2154
+class_5=1616
+class_6=1914
+class_7=2819

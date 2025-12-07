@@ -5,6 +5,14 @@ from torchvision import models, transforms
 from PIL import Image
 from tqdm import tqdm
 from multiprocessing import freeze_support
+from sklearn.metrics import (
+    accuracy_score,
+    precision_recall_fscore_support,
+    confusion_matrix,
+    classification_report,
+)
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class AffectNetYOLOTestDataset(Dataset):
@@ -43,6 +51,13 @@ class AffectNetYOLOTestDataset(Dataset):
 if __name__ == "__main__":
     freeze_support()
 
+    results_dir = "experiments/baseline/mobilenet"
+    os.makedirs(results_dir, exist_ok=True)
+    metrics_path = os.path.join(results_dir, "metrics.txt")
+    report_path = os.path.join(results_dir, "classification_report.txt")
+    cm_png_path = os.path.join(results_dir, "confusion_matrix.png")
+    cm_csv_path = os.path.join(results_dir, "confusion_matrix.csv")
+
     test_img_dir = "data/affectnet_raw/YOLO_format/test/images"
     test_lbl_dir = "data/affectnet_raw/YOLO_format/test/labels"
 
@@ -60,7 +75,7 @@ if __name__ == "__main__":
         test_dataset,
         batch_size=32,
         shuffle=False,
-        num_workers=0  # na Windows bezpiecznie 0
+        num_workers=0
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -83,7 +98,8 @@ if __name__ == "__main__":
         "Happy", "Neutral", "Sad", "Surprise"
     ]
 
-    correct, total = 0, 0
+    all_labels = []
+    all_preds = []
 
     for imgs, labels, _ in tqdm(test_loader, desc="Evaluating MobileNetV3"):
         imgs = imgs.to(device)
@@ -93,11 +109,75 @@ if __name__ == "__main__":
             outputs = model(imgs)
             _, preds = torch.max(outputs, 1)
 
-        correct += (preds == labels).sum().item()
-        total += labels.size(0)
+        all_labels.extend(labels.cpu().tolist())
+        all_preds.extend(preds.cpu().tolist())
 
-    acc = correct / total if total else 0.0
+    acc = accuracy_score(all_labels, all_preds)
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        all_labels, all_preds, labels=list(range(8)), average=None, zero_division=0
+    )
+    p_macro, r_macro, f1_macro, _ = precision_recall_fscore_support(
+        all_labels, all_preds, average="macro", zero_division=0
+    )
+
     print(f"\nDokładność MobileNetV3 na zbiorze testowym: {acc:.4f}")
+    print(f"Macro precision: {p_macro:.4f}")
+    print(f"Macro recall:    {r_macro:.4f}")
+    print(f"Macro F1:        {f1_macro:.4f}")
+
+    with open(metrics_path, "w") as f:
+        f.write("MobileNetV3 baseline - test metrics\n")
+        f.write(f"accuracy={acc:.4f}\n")
+        f.write(f"macro_precision={p_macro:.4f}\n")
+        f.write(f"macro_recall={r_macro:.4f}\n")
+        f.write(f"macro_f1={f1_macro:.4f}\n\n")
+        f.write("per-class metrics (order: Anger, Contempt, Disgust, Fear, Happy, Neutral, Sad, Surprise)\n")
+        for i, cls_name in enumerate(emotion_classes):
+            f.write(
+                f"{cls_name}: precision={precision[i]:.4f}, "
+                f"recall={recall[i]:.4f}, f1={f1[i]:.4f}\n"
+            )
+
+    report = classification_report(
+        all_labels, all_preds,
+        target_names=emotion_classes,
+        zero_division=0
+    )
+    with open(report_path, "w") as f:
+        f.write(report)
+
+    cm = confusion_matrix(all_labels, all_preds, labels=list(range(8)))
+    np.savetxt(cm_csv_path, cm, delimiter=",", fmt="%d")
+
+    plt.figure(figsize=(7, 6))
+    plt.imshow(cm, interpolation="nearest", cmap="viridis")
+    plt.title("Confusion matrix - MobileNetV3 baseline")
+    plt.colorbar()
+
+    tick_marks = np.arange(len(emotion_classes))
+    plt.xticks(tick_marks, emotion_classes, rotation=45, ha="right")
+    plt.yticks(tick_marks, emotion_classes)
+
+    thresh = cm.max() / 2.0
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            plt.text(
+                j, i, format(cm[i, j], "d"),
+                ha="center", va="center",
+                color="white" if cm[i, j] > thresh else "black",
+                fontsize=9
+            )
+
+    plt.xlabel("Predykcja")
+    plt.ylabel("Prawda")
+    plt.tight_layout()
+    plt.savefig(cm_png_path)
+    plt.close()
+
+
+    print(f"\n[OK] Zapisano metryki do: {metrics_path}")
+    print(f"[OK] Zapisano classification report do: {report_path}")
+    print(f"[OK] Zapisano confusion matrix do: {cm_png_path}")
 
     print("\nPrzykładowe predykcje (pierwsze 10):")
     for i in range(min(10, len(test_dataset))):

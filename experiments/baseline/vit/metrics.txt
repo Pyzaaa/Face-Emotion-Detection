@@ -1,0 +1,15 @@
+ViT-B/16 baseline - test metrics
+accuracy=0.6824
+macro_precision=0.6765
+macro_recall=0.6682
+macro_f1=0.6706
+
+per-class metrics (order: Anger, Contempt, Disgust, Fear, Happy, Neutral, Sad, Surprise)
+Anger: precision=0.6444, recall=0.7050, f1=0.6733
+Contempt: precision=0.6474, recall=0.7410, f1=0.6910
+Disgust: precision=0.6083, recall=0.6269, f1=0.6175
+Fear: precision=0.7518, recall=0.6572, f1=0.7013
+Happy: precision=0.8355, recall=0.8020, f1=0.8184
+Neutral: precision=0.5427, recall=0.5080, f1=0.5248
+Sad: precision=0.6810, recall=0.5683, f1=0.6196
+Surprise: precision=0.7012, recall=0.7372, f1=0.7188

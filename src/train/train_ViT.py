@@ -101,6 +101,17 @@ def train_vit():
     best_acc = 0.0
     os.makedirs("models", exist_ok=True)
 
+    results_dir = "experiments/baseline/vit"
+    os.makedirs(results_dir, exist_ok=True)
+
+    train_log_path = os.path.join(results_dir, "train_log.txt")
+    summary_path = os.path.join(results_dir, "train_summary.txt")
+
+    # wyczyść stare logi jeśli były
+    if os.path.exists(train_log_path):
+        os.remove(train_log_path)
+
+
     for epoch in range(EPOCHS):
         model.train()
         running_loss = 0.0
@@ -118,14 +129,35 @@ def train_vit():
             loop.set_postfix(loss=f"{loss.item():.4f}")
 
         val_acc = evaluate(model, val_loader)
-        print(f"Epoch {epoch+1}/{EPOCHS} | Avg Loss: {running_loss/len(train_loader):.4f} | Val Acc: {val_acc:.4f}")
+        avg_loss = running_loss / len(train_loader)
+
+        print(
+            f"Epoch {epoch+1}/{EPOCHS} | "
+            f"Avg Loss: {avg_loss:.4f} | Val Acc: {val_acc:.4f}"
+        )
+
+        # dopisz linię do loga treningu
+        with open(train_log_path, "a") as f:
+            f.write(
+                f"epoch={epoch+1}, "
+                f"avg_loss={avg_loss:.4f}, "
+                f"val_acc={val_acc:.4f}\n"
+            )
 
         if val_acc > best_acc:
             best_acc = val_acc
             torch.save(model.state_dict(), "models/vit_b16_best.pth")
-            print("[✔] Zapisano nowy najlepszy model")
+            print("Zapisano nowy najlepszy model")
 
-    print("\nTrening zakończony. Najlepsza dokładność:", best_acc)
+    print("\nTrening ViT zakończony. Najlepsza dokładność:", best_acc)
+
+    with open(summary_path, "w") as f:
+        f.write("ViT baseline\n")
+        f.write(f"epochs={EPOCHS}\n")
+        f.write("optimizer=Adam\n")
+        f.write("lr=1e-4\n")
+        f.write(f"best_val_acc={best_acc:.4f}\n")
+
 
 if __name__ == "__main__":
     train_vit()

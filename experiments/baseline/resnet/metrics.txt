@@ -1,0 +1,15 @@
+ResNet50 baseline - test metrics
+accuracy=0.6933
+macro_precision=0.6920
+macro_recall=0.6812
+macro_f1=0.6793
+
+per-class metrics (order: Anger, Contempt, Disgust, Fear, Happy, Neutral, Sad, Surprise)
+Anger: precision=0.6709, recall=0.6867, f1=0.6787
+Contempt: precision=0.6259, recall=0.7711, f1=0.6910
+Disgust: precision=0.7612, recall=0.4679, f1=0.5795
+Fear: precision=0.7264, recall=0.7264, f1=0.7264
+Happy: precision=0.8154, recall=0.8747, f1=0.8440
+Neutral: precision=0.5282, recall=0.6360, f1=0.5771
+Sad: precision=0.6959, recall=0.5432, f1=0.6101
+Surprise: precision=0.7117, recall=0.7436, f1=0.7273
