@@ -1,0 +1,5 @@
+MobileNetV3 cwgan_gp train on balanced dataset
+epochs=10
+optimizer=Adam
+lr=1e-4
+best_val_acc=0.6546

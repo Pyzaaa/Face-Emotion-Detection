@@ -1,0 +1,10 @@
+epoch=1, avg_loss=1.2391, val_acc=0.6062
+epoch=2, avg_loss=0.7622, val_acc=0.6731
+epoch=3, avg_loss=0.4957, val_acc=0.6739
+epoch=4, avg_loss=0.2969, val_acc=0.6711
+epoch=5, avg_loss=0.2060, val_acc=0.6804
+epoch=6, avg_loss=0.1467, val_acc=0.6674
+epoch=7, avg_loss=0.1118, val_acc=0.6415
+epoch=8, avg_loss=0.1069, val_acc=0.6789
+epoch=9, avg_loss=0.0865, val_acc=0.6780
+epoch=10, avg_loss=0.0808, val_acc=0.6620

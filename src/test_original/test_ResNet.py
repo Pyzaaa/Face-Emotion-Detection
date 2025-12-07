@@ -72,7 +72,7 @@ if __name__ == "__main__":
     print(f"[INFO] Używane urządzenie: {device}")
 
     model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
-    model.fc = torch.nn.Linear(model.fc.in_features, 8)  # 8 emocji
+    model.fc = torch.nn.Linear(model.fc.in_features, 8)
     model.load_state_dict(torch.load("models/resnet50_best.pth", map_location=device))
     model.to(device)
     model.eval()
