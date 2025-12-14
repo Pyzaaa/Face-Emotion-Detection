@@ -3,6 +3,11 @@
 src/data/*
 data
 models
+
+# exclude CAM pictures
+src/test_with_focus/experiments/resnet_cam/*.png
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

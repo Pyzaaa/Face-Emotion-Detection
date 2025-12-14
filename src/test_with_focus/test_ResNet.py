@@ -41,12 +41,9 @@ class AffectNetYOLOTestDataset(Dataset):
         with open(lbl_path, "r") as f:
             label = int(f.readline().split()[0])
 
-        if self.transform:
-            img_tf = self.transform(img)
-        else:
-            img_tf = img
+        img_tf = self.transform(img) if self.transform else img
 
-        return img_tf, label, img_name, img
+        return img_tf, label, img_name
 
 
 # ----------------------------------------------------
@@ -88,13 +85,24 @@ class GradCAM:
 # ----------------------------------------------------
 # Heatmap overlay
 # ----------------------------------------------------
+import cv2
+
 def save_gradcam_overlay(img_pil, gradcam_map, out_path):
+    # obraz oryginalny
     img = np.array(img_pil.resize((224, 224)))
-    heatmap = plt.cm.jet(gradcam_map)[..., :3] * 255
-    heatmap = heatmap.astype(np.uint8)
 
-    overlay = (0.4 * heatmap + 0.6 * img).astype(np.uint8)
+    # resize Grad-CAM z 7x7 -> 224x224
+    gradcam_map = cv2.resize(gradcam_map, (224, 224))
+    gradcam_map = np.uint8(255 * gradcam_map)
 
+    # heatmapa
+    heatmap = cv2.applyColorMap(gradcam_map, cv2.COLORMAP_JET)
+    heatmap = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
+
+    # overlay
+    overlay = cv2.addWeighted(img, 0.6, heatmap, 0.4, 0)
+
+    # zapis
     plt.figure(figsize=(4, 4))
     plt.imshow(overlay)
     plt.axis("off")
@@ -103,14 +111,15 @@ def save_gradcam_overlay(img_pil, gradcam_map, out_path):
     plt.close()
 
 
+
 # ----------------------------------------------------
 # MAIN
 # ----------------------------------------------------
 if __name__ == "__main__":
-    os.makedirs("experiments/resnet_cam", exist_ok=True)
+    os.makedirs("resnet_cam", exist_ok=True)
 
-    test_img_dir = "data/affectnet_raw/YOLO_format/test/images"
-    test_lbl_dir = "data/affectnet_raw/YOLO_format/test/labels"
+    test_img_dir = "../data/affectnet_raw/YOLO_format/test/images"
+    test_lbl_dir = "../data/affectnet_raw/YOLO_format/test/labels"
 
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -131,7 +140,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------
     model = models.resnet50(weights=None)
     model.fc = torch.nn.Linear(model.fc.in_features, 8)
-    model.load_state_dict(torch.load("models/resnet50_best.pth", map_location=device))
+    model.load_state_dict(torch.load("../models/resnet50-2_epoch1.pth", map_location=device))
     model.to(device)
     model.eval()
 
@@ -150,7 +159,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------
     # TESTOWANIE + GENEROWANIE GRADCAM
     # ----------------------------------------------------
-    for imgs, labels, names, originals in tqdm(test_loader, desc="Evaluating"):
+    for imgs, labels, names in tqdm(test_loader, desc="Evaluating"):
         imgs = imgs.to(device)
         labels = labels.to(device)
 
@@ -158,21 +167,22 @@ if __name__ == "__main__":
             img = imgs[i].unsqueeze(0)
             label = labels[i].item()
             name = names[i]
-            original_pil = originals[i]
+
+            # PIL image tylko do wizualizacji
+            img_path = os.path.join(test_img_dir, name)
+            original_pil = Image.open(img_path).convert("RGB")
 
             model.zero_grad()
             out = model(img)
             pred = torch.argmax(out).item()
 
-            # zapis predykcji
             all_labels.append(label)
             all_preds.append(pred)
 
-            # obliczenie grad-cam dla klasy predykowanej
-            out[0, pred].backward(retain_graph=True)
+            out[0, pred].backward()
             cam = gradcam.generate(class_idx=pred)
 
-            save_path = f"experiments/resnet_cam/{name.replace('.jpg', '').replace('.png','')}_cam.png"
+            save_path = f"experiments/resnet_cam/{name.split('.')[0]}_cam.png"
             save_gradcam_overlay(original_pil, cam, save_path)
 
     # ----------------------------------------------------

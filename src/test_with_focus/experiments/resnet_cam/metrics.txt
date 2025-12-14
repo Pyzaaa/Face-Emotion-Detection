@@ -1,0 +1,14 @@
+accuracy=0.6479
+macro_precision=0.6450
+macro_recall=0.6381
+macro_f1=0.6373
+
+Per-class metrics:
+Anger: P=0.655, R=0.645, F1=0.650
+Contempt: P=0.680, R=0.672, F1=0.676
+Disgust: P=0.583, R=0.612, F1=0.597
+Fear: P=0.744, R=0.575, F1=0.649
+Happy: P=0.823, R=0.852, F1=0.837
+Neutral: P=0.517, R=0.488, F1=0.502
+Sad: P=0.433, R=0.633, F1=0.515
+Surprise: P=0.724, R=0.628, F1=0.673
