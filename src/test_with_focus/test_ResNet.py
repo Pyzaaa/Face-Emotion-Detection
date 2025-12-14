@@ -140,7 +140,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------
     model = models.resnet50(weights=None)
     model.fc = torch.nn.Linear(model.fc.in_features, 8)
-    model.load_state_dict(torch.load("../models/resnet50-2_epoch1.pth", map_location=device))
+    model.load_state_dict(torch.load("../models/resnet50_improved.pth", map_location=device))
     model.to(device)
     model.eval()
 
@@ -182,7 +182,7 @@ if __name__ == "__main__":
             out[0, pred].backward()
             cam = gradcam.generate(class_idx=pred)
 
-            save_path = f"experiments/resnet_cam/{name.split('.')[0]}_cam.png"
+            save_path = f"resnet_cam/{name.split('.')[0]}_cam.png"
             save_gradcam_overlay(original_pil, cam, save_path)
 
     # ----------------------------------------------------
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     # raport
     report = classification_report(all_labels, all_preds, target_names=emotion_classes)
 
-    with open("experiments/resnet_cam/metrics.txt", "w") as f:
+    with open("metrics.txt", "w") as f:
         f.write(f"accuracy={acc:.4f}\n")
         f.write(f"macro_precision={p_macro:.4f}\n")
         f.write(f"macro_recall={r_macro:.4f}\n")
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         for i, cls in enumerate(emotion_classes):
             f.write(f"{cls}: P={precision[i]:.3f}, R={recall[i]:.3f}, F1={f1[i]:.3f}\n")
 
-    with open("experiments/resnet_cam/report.txt", "w") as f:
+    with open("report.txt", "w") as f:
         f.write(report)
 
-    print("\n[OK] Wyniki + GradCAM zapisane w: experiments/resnet_cam/")
+    print("\n[OK] Wyniki + GradCAM zapisane")

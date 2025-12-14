@@ -5,7 +5,7 @@ data
 models
 
 # exclude CAM pictures
-src/test_with_focus/experiments/resnet_cam/*.png
+src/test_with_focus/*/*.png
 
 
 # Byte-compiled / optimized / DLL files
