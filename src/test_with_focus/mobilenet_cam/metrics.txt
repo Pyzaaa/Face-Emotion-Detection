@@ -1,0 +1,13 @@
+accuracy=0.6417
+macro_precision=0.6339
+macro_recall=0.6279
+macro_f1=0.6293
+
+Anger: P=0.675, R=0.645, F1=0.660
+Contempt: P=0.592, R=0.687, F1=0.636
+Disgust: P=0.566, R=0.566, F1=0.566
+Fear: P=0.673, R=0.667, F1=0.670
+Happy: P=0.874, R=0.779, F1=0.824
+Neutral: P=0.465, R=0.500, F1=0.482
+Sad: P=0.584, R=0.486, F1=0.530
+Surprise: P=0.642, R=0.694, F1=0.667
