@@ -3,10 +3,10 @@
 src/data/*
 data
 models
-
+resnet_cam
 # exclude CAM pictures
 src/test_with_focus/*/*.png
-
+experiments/heatmap_analysis/resnet_check
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
