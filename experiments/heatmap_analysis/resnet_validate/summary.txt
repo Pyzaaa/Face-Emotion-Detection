@@ -1,0 +1,15 @@
+ResNet50 heatmap validation (GradCAM)
+samples=2755
+mask_topk_frac=0.2
+
+acc_original=0.6936
+acc_mask_cam=0.1833
+acc_mask_random=0.5270
+
+avg probability drop (higher is better, means mask hits important region)
+drop_true_cam=0.4459
+drop_true_random=0.2066
+drop_pred_cam=0.5935
+drop_pred_random=0.3026
+
+debug_examples_dir=experiments/heatmap_analysis/resnet_validate\debug_examples
