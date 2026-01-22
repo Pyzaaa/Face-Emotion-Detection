@@ -1,0 +1,17 @@
+ResNet50 cwgan_gp - test metrics
+checkpoint=models/resnet50_cwgan_gp_best.pth
+
+accuracy=0.6795
+macro_precision=0.6765
+macro_recall=0.6655
+macro_f1=0.6668
+
+per-class metrics (order: Anger, Contempt, Disgust, Fear, Happy, Neutral, Sad, Surprise)
+Anger: precision=0.6239, recall=0.7493, f1=0.6809
+Contempt: precision=0.7412, recall=0.5693, f1=0.6440
+Disgust: precision=0.6214, recall=0.5872, f1=0.6038
+Fear: precision=0.7838, recall=0.6384, f1=0.7036
+Happy: precision=0.7377, recall=0.9023, f1=0.8117
+Neutral: precision=0.5854, recall=0.5760, f1=0.5806
+Sad: precision=0.6074, recall=0.5899, f1=0.5985
+Surprise: precision=0.7115, recall=0.7115, f1=0.7115

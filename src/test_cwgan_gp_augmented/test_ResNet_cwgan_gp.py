@@ -76,7 +76,7 @@ if __name__ == "__main__":
     freeze_support()
 
     # gdzie zapisujemy wyniki
-    results_dir = "experiments/cwgan_gp/mobilenet"
+    results_dir = "experiments/cwgan_gp/resnet"
     os.makedirs(results_dir, exist_ok=True)
     metrics_path = os.path.join(results_dir, "test_metrics.txt")
     report_path = os.path.join(results_dir, "test_classification_report.txt")
@@ -108,14 +108,11 @@ if __name__ == "__main__":
     print(f"[INFO] Używane urządzenie: {device}")
     print(f"[INFO] Test samples: {len(test_dataset)}")
 
-    # wczytanie MobileNetV3 wytrenowanego na cwgan_gp train
-    model = models.mobilenet_v3_large(
-        weights=models.MobileNet_V3_Large_Weights.IMAGENET1K_V2
-    )
-    in_features = model.classifier[3].in_features
-    model.classifier[3] = torch.nn.Linear(in_features, 8)
+    # wczytanie ResNet50 wytrenowanego na cwgan_gp train
+    model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
+    model.fc = torch.nn.Linear(model.fc.in_features, 8)
 
-    ckpt_path = "models/mobilenet_v3_cwgan_gp_best.pth"
+    ckpt_path = "models/resnet50_cwgan_gp_best.pth"
     model.load_state_dict(torch.load(ckpt_path, map_location=device))
     model.to(device)
     model.eval()
@@ -127,7 +124,7 @@ if __name__ == "__main__":
 
     all_labels, all_preds = [], []
 
-    for imgs, labels, _ in tqdm(test_loader, desc="Evaluating MobileNetV3 (cwgan_gp)"):
+    for imgs, labels, _ in tqdm(test_loader, desc="Evaluating ResNet50 (cwgan_gp)"):
         imgs = imgs.to(device)
         labels = labels.to(device)
 
@@ -155,7 +152,7 @@ if __name__ == "__main__":
 
     # zapis metryk
     with open(metrics_path, "w", encoding="utf-8") as f:
-        f.write("MobileNetV3 cwgan_gp - test metrics\n")
+        f.write("ResNet50 cwgan_gp - test metrics\n")
         f.write(f"checkpoint={ckpt_path}\n\n")
         f.write(f"accuracy={acc:.4f}\n")
         f.write(f"macro_precision={p_macro:.4f}\n")
@@ -180,7 +177,7 @@ if __name__ == "__main__":
     np.savetxt(cm_csv_path, cm, delimiter=",", fmt="%d")
     plot_and_save_confusion_matrix(
         cm, emotion_classes, cm_png_path,
-        title="Confusion matrix - MobileNetV3 (cwgan_gp)"
+        title="Confusion matrix - ResNet50 (cwgan_gp)"
     )
 
     print(f"\n[OK] Zapisano metryki do: {metrics_path}")
